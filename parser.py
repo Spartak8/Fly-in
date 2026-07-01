@@ -1,4 +1,4 @@
-from models import Graph
+from models import Graph, StartHub, EndHub, Zone, Connection
 
 
 class ParseError(Exception):
@@ -36,13 +36,53 @@ class Parser:
                     if nb_drones <= 0:
                         raise ParseError(line_number, "nb_drones must be a positive integer")
                 elif key == "start_hub":
-                    pass
+                    name, x, y, metadata = self._parse_zone(value, line_number)
+                    try:
+                        max_drones = int(metadata.get("max_drones", 1))
+                    except ValueError:
+                        raise ParseError(line_number, "max_drones must be an integer")
+                    zone = StartHub(name, x, y,
+                                    zone_type=metadata.get("zone", "normal"),
+                                    color=metadata.get("color"),
+                                    max_drones=max_drones)
+                    graph.add_zone(zone)
                 elif key == "end_hub":
-                    pass
+                    name, x, y, metadata = self._parse_zone(value, line_number)
+                    try:
+                        max_drones = int(metadata.get("max_drones", 1))
+                    except ValueError:
+                        raise ParseError(line_number, "max_drones must be an integer")
+                    zone = EndHub(name, x, y,
+                                  zone_type=metadata.get("zone", "normal"),
+                                  color=metadata.get("color"),
+                                  max_drones=max_drones)
+                    graph.add_zone(zone)
                 elif key == "hub":
-                    pass
+                    name, x, y, metadata = self._parse_zone(value, line_number)
+                    try:
+                        max_drones = int(metadata.get("max_drones", 1))
+                    except ValueError:
+                        raise ParseError(line_number, "max_drones must be an integer")
+                    zone = Zone(name, x, y,
+                                zone_type=metadata.get("zone", "normal"),
+                                color=metadata.get("color"),
+                                max_drones=max_drones)
+                    graph.add_zone(zone)
                 elif key == "connection":
-                    pass
+                    zone1, zone2, metadata = self._parse_connection(value, line_number)
+                    if zone1 not in graph.zones or zone2 not in graph.zones:
+                        raise ParseError(line_number, "zone not found")
+                    try:
+                        max_link_capacity = int(metadata.get("max_link_capacity", 1))
+                    except ValueError:
+                        raise ParseError(line_number, "max_link_capacity must be an integer")
+                    for graph1 in graph.connections:
+                        if graph1.zone1 == zone1 and graph1.zone2 == zone2:
+                            raise ParseError(line_number, "connection already exists")
+                        if graph1.zone1 == zone2 and graph1.zone2 == zone1:
+                            raise ParseError(line_number, "connection already exists")
+                    graph.add_connection(Connection(zone1, zone2, max_link_capacity))
+        return nb_drones, graph
 
     def _parse_zone(self, value, line_number):
         parts = value.split()
@@ -65,4 +105,25 @@ class Parser:
                 if len(kv) != 2:
                     raise ParseError(line_number, f"Invalid metadata pair: {pair}")
                 metadata[kv[0]] = kv[1]
-            return name, x, y, metadata     
+            return name, x, y, metadata
+    
+    def _parse_connection(self, value, line_number):
+        parts = value.split()
+        if len(parts) < 1:
+            raise ParseError(line_number, "connection line is missing zone names")
+        name_parts = parts[0].split("-")
+        if len(name_parts) != 2:
+            raise ParseError(line_number, f"invalid connection format: {parts[0]}")
+        zone1, zone2 = name_parts
+        metadata_parts = " ".join(parts[1:])
+        if metadata_parts == "":
+            return zone1, zone2, {}
+        else:
+            pairs = metadata_parts.strip("[]").split()
+            metadata = {}
+            for pair in pairs:
+                kv = pair.split("=")
+                if len(kv) != 2:
+                    raise ParseError(line_number, f"Invalid metadata pair: {pair}")
+                metadata[kv[0]] = kv[1]
+            return zone1, zone2, metadata
