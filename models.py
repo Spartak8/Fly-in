@@ -6,6 +6,14 @@ class Zone:
         self.zone_type = zone_type
         self.max_drones = max_drones
         self.color = color
+    
+    def movement_cost(self):
+        if self.zone_type == "blocked":
+            return None
+        elif self.zone_type == "restricted":
+            return 2
+        else:
+            return 1
 
 
 class StartHub(Zone):
@@ -36,8 +44,10 @@ class Graph:
         self.zones = {}
         self.connections = []
 
-    def add_zone(self, zone):
+    def add_zone(self, zone: Zone) -> None:
+        if zone.name in self.zones:
+            raise ValueError(f"Zone {zone.name} already exists")
         self.zones[zone.name] = zone
 
-    def add_connection(self, connection):
+    def add_connection(self, connection: Connection) -> None:
         self.connections.append(connection)
