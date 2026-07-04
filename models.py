@@ -6,7 +6,10 @@ class Zone:
         self.zone_type = zone_type
         self.max_drones = max_drones
         self.color = color
-    
+
+    def has_capacity(self, current_count):
+        return current_count < self.max_drones
+
     def movement_cost(self):
         if self.zone_type == "blocked":
             return None
@@ -17,11 +20,13 @@ class Zone:
 
 
 class StartHub(Zone):
-    pass
+    def has_capacity(self, current_count):
+        return True
 
 
 class EndHub(Zone):
-    pass
+    def has_capacity(self, current_count):
+        return True
 
 
 class Connection:
@@ -36,6 +41,7 @@ class Drone:
         self.drone_id = drone_id
         self.current_zone = current_zone
         self.path = []
+        self.path_index = 0
         self.arrived = arrived
 
 
