@@ -35,3 +35,11 @@ class Simulation:
             drones.append(drone)
             drone_id += 1
         return drones
+
+    def _can_move(self, drone):
+        if drone.path_index + 1 >= len(drone.path):
+            return False
+        next_zone_name = drone.path[drone.path_index + 1]
+        next_zone = self.graph.zones[next_zone_name]
+        current_count = len(self.occupancy[next_zone_name])
+        return next_zone.has_capacity(current_count)
