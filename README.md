@@ -30,6 +30,31 @@ Alternatively, you can use the `Makefile`:
 make run ARGS="maps/challenger/01_the_impossible_dream.txt"
 ```
 
+### Example Input and Expected Output
+
+**Example Map (`maps/example.txt`):**
+```text
+nb_drones: 2
+start_hub: start 0 0 [color=green]
+end_hub: goal 10 10 [color=yellow]
+hub: roof1 3 4 [zone=normal color=blue]
+connection: start-roof1
+connection: roof1-goal
+```
+
+**Expected Output:**
+```text
+start: normal
+goal: normal
+roof1: normal
+
+D1-roof1 D2-start-roof1
+D1-goal D2-roof1
+D2-goal
+
+Total turns: 3
+```
+
 ### Linting and Code Quality
 This project adheres to strict PEP-8 standards and utilizes static typing. You can run the linters with:
 ```bash
