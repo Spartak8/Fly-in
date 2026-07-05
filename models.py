@@ -44,6 +44,7 @@ class Drone:
         self.path_index = 0
         self.arrived = arrived
         self.fly_left = 0
+        self.flying_to = None
 
 
 class Graph:

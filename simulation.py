@@ -36,25 +36,46 @@ class Simulation:
             drone_id += 1
         return drones
 
-    def _can_move(self, drone):
+    def _advance_drone(self, drone):
+        if drone.fly_left > 0:
+            drone.fly_left -= 1
+            if drone.fly_left == 0:
+                new_zone_name = drone.flying_to
+                new_zone = self.graph.zones[new_zone_name]
+                drone.current_zone = new_zone
+                drone.path_index += 1
+                drone.flying_to = None
+                if new_zone == self.end:
+                    drone.arrived = True
+                return f"D{drone.drone_id}-{new_zone_name}"
+            else:
+                connection_name = f"{drone.current_zone.name}-{drone.flying_to}"
+                return f"D{drone.drone_id}-{connection_name}"
+
         if drone.path_index + 1 >= len(drone.path):
-            return False
+            return
         next_zone_name = drone.path[drone.path_index + 1]
         next_zone = self.graph.zones[next_zone_name]
         current_count = len(self.occupancy[next_zone_name])
-        return next_zone.has_capacity(current_count)
-
-    def _move_drone(self, drone):
-        new_zone_name = drone.path[drone.path_index + 1]
+        if not next_zone.has_capacity(current_count):
+            return
+        next_zone_name = drone.path[drone.path_index + 1]
+        next_zone = self.graph.zones[next_zone_name]
+        drone.fly_left = next_zone.movement_cost()
+        drone.flying_to = next_zone_name
         self.occupancy[drone.current_zone.name].remove(drone)
-        self.occupancy[new_zone_name].append(drone)
-        drone.current_zone = self.graph.zones[new_zone_name]
-        drone.path_index += 1
-        if drone.current_zone == self.end:
-            drone.arrived = True
-
-    def _advance_drone(self,drone):
-        
+        self.occupancy[next_zone_name].append(drone)
+        drone.fly_left -= 1
+        if drone.fly_left == 0:
+            drone.current_zone = next_zone
+            drone.path_index += 1
+            drone.flying_to = None
+            if next_zone == self.end:
+                drone.arrived = True
+            return f"D{drone.drone_id}-{next_zone_name}"
+        else:
+            connection_name = f"{drone.current_zone.name}-{next_zone_name}"
+            return f"D{drone.drone_id}-{connection_name}"
 
     def run(self):
         turns = []
@@ -67,13 +88,13 @@ class Simulation:
             for drone in self.drones:
                 if drone.arrived:
                     continue
-                if self._can_move(drone):
-                    self._move_drone(drone)
-                    turn_moves.append(f"D{drone.drone_id}-{drone.current_zone.name}")
+                result = self._advance_drone(drone)
+                if result is not None:
+                    turn_moves.append(result)
             turns.append(turn_moves)
             turn_count += 1
         return turns
-    
+
 
 if __name__ == "__main__":
     from parser import Parser
