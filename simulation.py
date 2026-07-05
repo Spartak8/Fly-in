@@ -221,18 +221,3 @@ class Simulation:
             turns.append(turn_moves)
             turn_count += 1
         return turns
-
-
-if __name__ == "__main__":
-    from parser import Parser
-
-    parser = Parser("maps/hard/01_maze_nightmare.txt")
-    parsed_nb_drones, parsed_graph = parser.parse()
-
-    sim = Simulation(parsed_graph, parsed_nb_drones)
-    res_turns = sim.run()
-
-    for tm in res_turns:
-        print(" ".join(tm))
-
-    print(f"\nTotal turns: {len(res_turns)}")

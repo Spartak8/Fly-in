@@ -1,5 +1,4 @@
 from typing import List, Dict
-from simulation import Simulation
 from models import Graph
 
 
@@ -91,17 +90,3 @@ class Display():
         print()
         for turn in colored_turns:
             print(" ".join(turn))
-
-
-if __name__ == "__main__":
-    from parser import Parser
-
-    parser = Parser("maps/challenger/01_the_impossible_dream.txt")
-    parsed_nb_drones, parsed_graph = parser.parse()
-
-    sim = Simulation(parsed_graph, parsed_nb_drones)
-    res_turns = sim.run()
-
-    display = Display(res_turns, parsed_graph)
-    display.display()
-    print(f"\nTotal turns: {len(res_turns)}")

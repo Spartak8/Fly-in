@@ -31,7 +31,6 @@ def main() -> None:
     except ValueError as e:
         print(f"Simulation error: {e}")
         sys.exit(1)
-
     turns = sim.run()
     display = Display(turns, graph)
     display.display()

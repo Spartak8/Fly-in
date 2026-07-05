@@ -120,25 +120,3 @@ class Pathfinding:
             if connection.zone2 == zone_name:
                 neighbours.append(connection.zone1)
         return neighbours
-
-
-if __name__ == "__main__":
-    from parser import Parser
-    from models import StartHub, EndHub
-    parser = Parser("maps/easy/01_linear_path.txt")
-    nb_drones, test_graph = parser.parse()
-
-    start_zone: Optional[str] = None
-    end_zone: Optional[str] = None
-    for z in test_graph.zones.values():
-        if isinstance(z, StartHub):
-            start_zone = z.name
-        elif isinstance(z, EndHub):
-            end_zone = z.name
-
-    if start_zone and end_zone:
-        pathfind = Pathfinding(test_graph)
-        p_result = pathfind.shortest_path(start_zone, end_zone)
-        if p_result:
-            print(p_result[0])
-            print(p_result[1])

@@ -232,16 +232,3 @@ class Parser:
                     raise ParseError(line_number, f"Invalid pair: {pair}")
                 metadata[kv[0]] = kv[1]
             return zone1, zone2, metadata
-
-
-if __name__ == "__main__":
-    parser = Parser("maps/challenger/01_the_impossible_dream.txt")
-    try:
-        parsed_nb_drones, parsed_graph = parser.parse()
-        print(parsed_nb_drones)
-        for z in parsed_graph.zones.values():
-            print(z.name, z.x, z.y, z.zone_type, z.color, z.max_drones)
-        for c in parsed_graph.connections:
-            print(c.zone1, c.zone2, c.max_link_capacity)
-    except ParseError as e:
-        print(e)
