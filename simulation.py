@@ -191,9 +191,11 @@ class Simulation:
         if not candidates:
             return None
 
-        def key_func(x: str) -> int:
-            return self.graph.zones[x].max_drones - len(self.occupancy[x])
-
+        def key_func(x: str) -> tuple[bool, int]:
+            zone = self.graph.zones[x]
+            is_priority = zone.zone_type == "priority"
+            spare_capacity = zone.max_drones - len(self.occupancy[x])
+            return (is_priority, spare_capacity)
         return max(candidates, key=key_func)
 
     def run(self) -> List[List[str]]:

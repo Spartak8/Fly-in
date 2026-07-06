@@ -156,6 +156,8 @@ class Parser:
                             raise ParseError(line_number, "already exists")
                     graph.add_connection(
                         Connection(zone1, zone2, max_link_cap))
+        if nb_drones == 0:
+            raise ParseError(line_number, "no nb_drones defined in file")
         if start_hub_count == 0:
             raise ParseError(line_number, "no start_hub defined in file")
         if end_hub_count == 0:

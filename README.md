@@ -11,7 +11,7 @@ The goal of this project is to efficiently route a specified number of drones fr
 ## Instructions
 
 ### Prerequisites
-- Python 3.8+
+- Python 3.10+
 - The required dependencies can be installed using the provided `Makefile`.
 
 ### Installation
@@ -48,7 +48,7 @@ start: normal
 goal: normal
 roof1: normal
 
-D1-roof1 D2-start-roof1
+D1-roof1
 D1-goal D2-roof1
 D2-goal
 
@@ -73,10 +73,11 @@ This approach uses a reverse-search strategy where the cost to reach the destina
 ### Simulation Logic
 During the simulation (`simulation.py`), drones use a greedy approach combined with capacity constraints:
 1. **Distance Minimization:** Drones evaluate all neighboring zones and prioritize those that have a shorter distance to the `EndHub` than their current zone.
-2. **Capacity Checks:** Before moving, the simulation verifies if the chosen neighbor has available capacity (`max_drones`) and if the connection link has not exceeded its `max_link_capacity`.
-3. **Turn-based Advancement:** Drones require a specific number of turns to traverse restricted zones. The `_advance_drone` logic tracks the remaining fly time (`fly_left`) for each drone and locks the capacity until the drone has fully arrived at the next node.
+2. **Priority Zones:** Among all valid candidate zones, priority zones are preferred over normal ones; ties within the same priority tier are broken by favoring the zone with the most spare capacity.
+3. **Capacity Checks:** Before moving, the simulation verifies if the chosen neighbor has available capacity (`max_drones`) and if the connection link has not exceeded its `max_link_capacity`.
+4. **Turn-based Advancement:** Drones require a specific number of turns to traverse restricted zones. The `_advance_drone` logic tracks the remaining fly time (`fly_left`) for each drone and locks the capacity until the drone has fully arrived at the next node.
 
-This strategy ensures that drones don't just blindly follow the absolute shortest path and get deadlocked; they respect physical space and connection bandwidth constraints dynamically per turn.
+This strategy ensures that drones don't just blindly follow the absolute shortest path and get deadlocked; they respect physical space and connection bandwidth constraints dynamically per turn, and naturally distribute across multiple viable routes when available.
 
 ## Visual Representation Features
 
